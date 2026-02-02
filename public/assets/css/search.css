@@ -1,0 +1,176 @@
+.clear {
+    clear: both;
+}
+
+.div_btn_srch .btn {
+    padding: 7px 11px;
+}
+
+.systemsearch .input-group-append {
+    position: absolute;
+    right: 0;
+}
+
+.systemsearch .input-group-append .input-group-text {
+    padding-right: 5px !important;
+}
+
+.searchbox {
+    padding: 10px 0px;
+    clear: both;
+}
+
+.divdaterange {
+    display: none;
+}
+
+.searchboxadvance {
+    width: 100%;
+    float: left;
+    padding: 10px;
+    border: solid 1px #e0e0e0;
+    background: #f7f7f7;
+    margin-bottom: 10px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+}
+
+.searchbtn {
+    background: #f2635f;
+    border: solid 1px #cc4743;
+    border-radius: 3px;
+    color: #fff;
+    display: inline-block;
+    font-size: 13px;
+    padding: 5px 12px;
+    text-align: center;
+    text-decoration: none;
+    margin-right: 5px;
+    margin-top: 2px;
+}
+
+.srchcancel {
+    background: #d0d0d0;
+    border: solid 1px #ccc;
+    color: #333333;
+    margin-right: 0px;
+    display: none;
+}
+
+.searchbtn:hover {
+    background: #f2635f;
+    border: solid 1px #cc4743;
+    text-decoration: none;
+}
+
+.srchcancel:hover {
+    background: #818181;
+    color: #ffffff;
+    border: solid 1px #333;
+}
+
+#divadvancesrach {
+    display: none;
+    clear: both;
+}
+
+.linkadvancesearch {
+    clear: both;
+    margin-top: 0px !important;
+    margin-bottom: 0px !important;
+}
+
+.linkadvancesearch a {
+    color: #e99525 !important;
+    margin-top: 4px;
+}
+
+.divdrop {
+    position: absolute;
+}
+
+.divdrop .dropctrl {
+    border: 1px solid #dadada;
+    border-radius: 0;
+    height: 34px;
+    padding: 8px 12px;
+    display: block;
+    line-height: 1.42857143;
+    color: #555;
+    background-color: #fff;
+    cursor: pointer;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    -webkit-transition: all ease-in-out .15s;
+    -o-transition: all ease-in-out .15s;
+    transition: all ease-in-out .15s;
+    background-image: url("../images/drow-arrow.png") !important;
+    background-position: right 10px center;
+    background-repeat: no-repeat;
+    overflow: hidden;
+}
+
+.divdrop .droplist {
+    clear: both;
+    max-height: 200px;
+    overflow: auto;
+    background: #fff;
+    border: outset 1px #000;
+    display: none;
+    padding: 5px 2px;
+    position: relative;
+    z-index: 1;
+}
+
+.divdrop .droplist ul {
+    margin: 0px;
+    padding: 0px;
+}
+
+.divdrop .droplist ul li {
+    clear: both;
+    padding: 3px 5px;
+    cursor: pointer;
+}
+
+.divdrop .droplist ul li a {
+    text-decoration: none;
+    color: #333333;
+    float: left;
+    width: 85%;
+}
+
+.divdrop .droplist ul li input[type="checkbox"] {
+    opacity: 0;
+    padding: 0px;
+    margin: 0px;
+    width: 16px;
+    height: 16px;
+}
+
+.divdrop .droplist ul li span {
+    display: block;
+    float: left;
+    width: 16px;
+    height: 16px;
+    border: solid 1px #e0e0e0;
+    border-radius: 2px;
+    margin-right: 6px;
+    margin-top: 3px;
+    transition: background-color 0.5s ease;
+}
+
+.divdrop .droplist input[type='text'] {
+    width: 100%;
+    font-family: 'Open Sans';
+    border: solid 1px #cccccc;
+}
+
+.divdrop .droplist ul li span.checked {
+    background-image: url(../images/checked.png);
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-color: #0078D7;
+    border-color: #0078D7;
+    transition: background-color 0.5s ease;
+}

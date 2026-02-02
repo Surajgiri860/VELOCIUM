@@ -1,0 +1,16 @@
+@font-face {
+    font-family: 'Baroque Script';
+    src: url('BaroqueScript.eot');
+    src: url('BaroqueScript.eot?#iefix') format('embedded-opentype'), url('BaroqueScript.woff2') format('woff2'), url('BaroqueScript.woff') format('woff'), url('BaroqueScript.ttf') format('truetype'), url('BaroqueScript.svg#BaroqueScript') format('svg');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+.tagline {
+    font-family: 'Baroque Script';
+    color: #ffffff;
+    text-align: center;
+    display: block;
+    font-size: 13px;
+}
