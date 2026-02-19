@@ -652,3 +652,4 @@
 [2026-01-31 06:35:38] local.INFO: genrate password  {"hashed_password":"$2y$12$XDXJ7vQhpuk.2cSRbzWxNu1axGUovUZb8WF7gJJjZuZZmJ/URUSxW"} 
 [2026-01-31 06:35:38] local.INFO: Entered password {"entered_password":"Jivansh@9211"} 
 [2026-01-31 06:35:38] local.INFO: User password from DB {"hashed_password":"$2y$12$XDXJ7vQhpuk.2cSRbzWxNu1axGUovUZb8WF7gJJjZuZZmJ/URUSxW"} 
+[2026-02-10 10:04:24] local.INFO: User not found {"referal_code":"Itsrathe106@gmail.com"} 

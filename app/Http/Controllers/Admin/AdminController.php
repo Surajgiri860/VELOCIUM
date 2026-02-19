@@ -150,8 +150,22 @@ class AdminController extends Controller
         $request->session()->regenerateToken();
         return redirect()->route('login');
     }
+public function toggleUserStatus($id)
+{
+    $user = User::findOrFail($id);
 
-   
+    // 2 = Active, 0 = Inactive
+    $user->status = $user->status == 2 ? 0 : 2;
+    $user->save();
+
+    return response()->json([
+        'success' => true,
+        'status'  => $user->status,
+        'message' => $user->status == 2
+            ? 'User Unblocked Successfully'
+            : 'User Blocked Successfully'
+    ]);
+}
    
 
 }

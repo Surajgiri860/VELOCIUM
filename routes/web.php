@@ -94,5 +94,8 @@ Route::namespace('App\Http\Controllers\Admin')->prefix('admin')->group(function 
         Route::resource('addfund', AddFundController::class);
         Route::resource('active_user_id', ActiveUserIdController::class);
         Route::resource('withdrawal_requests', WithdrawalRequestController::class);
+         Route::post('/user-toggle-status/{id}', [AdminController::class, 'toggleUserStatus'])->name('admin.user.toggleStatus');
     });
+
+       
 });

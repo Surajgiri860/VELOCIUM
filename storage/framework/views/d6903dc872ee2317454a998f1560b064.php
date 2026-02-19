@@ -1,4 +1,4 @@
-@include('layouts.header')
+<?php echo $__env->make('layouts.header', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
 <div class="content">
     <div class="row">
@@ -46,50 +46,54 @@
                                                 </tr>
                                             </thead>
                                             <tbody id="userTableBody">
-                                                @foreach($alluser as $user)
+                                                <?php $__currentLoopData = $alluser; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                 <tr>
-                                                    <td class="referral-code"><strong>{{ $user->referal_code }}</strong></td>
+                                                    <td class="referral-code"><strong><?php echo e($user->referal_code); ?></strong></td>
                                                     
-                                                    <td>{{ $user->name }}</td>
-                                                    <td>{{ $user->email }}</td>
-                                                    <td>{{ $user->phone }}</td>
-                                                    <td>{{ $user->referal_by }}</td>
-                                                    <td>${{ number_format($user->activation_balance, 2) }}</td>
-                                                    <td>${{ number_format($user->withdrawable, 2) }}</td>
-                                                    <td>{{ $user->type == 1 ? 'Paid' : 'Dummy ID' }}</td>
-                                                    <td>${{ number_format($user->staking_balance, 2) }}</td>
-                                                    <td>${{ number_format($user->direct_balance, 2) }}</td>
-                                                    <td>${{ number_format($user->level_balance, 2) }}</td>
-                                                    <td>${{ number_format($user->total_investment, 2) }}</td>
-                                                    <td>${{ number_format($user->royalty_balance, 2) }}</td>
-                                                    <td>${{ number_format($user->team_business, 2) }}</td>
+                                                    <td><?php echo e($user->name); ?></td>
+                                                    <td><?php echo e($user->email); ?></td>
+                                                    <td><?php echo e($user->phone); ?></td>
+                                                    <td><?php echo e($user->referal_by); ?></td>
+                                                    <td>$<?php echo e(number_format($user->activation_balance, 2)); ?></td>
+                                                    <td>$<?php echo e(number_format($user->withdrawable, 2)); ?></td>
+                                                    <td><?php echo e($user->type == 1 ? 'Paid' : 'Dummy ID'); ?></td>
+                                                    <td>$<?php echo e(number_format($user->staking_balance, 2)); ?></td>
+                                                    <td>$<?php echo e(number_format($user->direct_balance, 2)); ?></td>
+                                                    <td>$<?php echo e(number_format($user->level_balance, 2)); ?></td>
+                                                    <td>$<?php echo e(number_format($user->total_investment, 2)); ?></td>
+                                                    <td>$<?php echo e(number_format($user->royalty_balance, 2)); ?></td>
+                                                    <td>$<?php echo e(number_format($user->team_business, 2)); ?></td>
                                                     <td class="user-status">
-                                                        <span style="color: {{ $user->status == 2 ? 'green' : 'red' }}">
-                                                            {{ $user->status == 2 ? 'Active' : 'Inactive' }}
+                                                        <span style="color: <?php echo e($user->status == 2 ? 'green' : 'red'); ?>">
+                                                            <?php echo e($user->status == 2 ? 'Active' : 'Inactive'); ?>
+
                                                         </span>
                                                     </td>
-                                                    <td>{{ $user->wallet_address }}</td>
-                                                    <td>{{ $user->created_at }}</td>
+                                                    <td><?php echo e($user->wallet_address); ?></td>
+                                                    <td><?php echo e($user->created_at); ?></td>
                                                     <td>
                                                        <button 
-                                                        class="btn btn-sm {{ $user->status == 2 ? 'btn-danger' : 'btn-success' }}"
-                                                        onclick="toggleUserStatus({{ $user->id }}, this)">
-                                                        {{ $user->status == 2 ? 'Block' : 'Unblock' }}
+                                                        class="btn btn-sm <?php echo e($user->status == 2 ? 'btn-danger' : 'btn-success'); ?>"
+                                                        onclick="toggleUserStatus(<?php echo e($user->id); ?>, this)">
+                                                        <?php echo e($user->status == 2 ? 'Block' : 'Unblock'); ?>
+
                                                     </button>
                                                     </td>
                                                 </tr>
-                                                @endforeach
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                             </tbody>
                                         </table>
                                     </div>
                                 </div>
                                 <div class="dataTables_info" id="tbldata_info" role="status" 
-                                aria-live="polite">Showing {{ $alluser->firstItem() }}
-                                 to {{ $alluser->lastItem() }} of {{ $alluser->total() }} 
+                                aria-live="polite">Showing <?php echo e($alluser->firstItem()); ?>
+
+                                 to <?php echo e($alluser->lastItem()); ?> of <?php echo e($alluser->total()); ?> 
                                  entries
                                 </div>
                                 <div class="dataTables_paginate paging_simple_numbers" id="tbldata_paginate">
-                                    {{ $alluser->links('pagination::bootstrap-4') }}
+                                    <?php echo e($alluser->links('pagination::bootstrap-4')); ?>
+
                                 </div>
                             </div>
                         </div>
@@ -131,10 +135,10 @@
         function toggleUserStatus(userId, btn) {
     if (!confirm('Are you sure?')) return;
 
-    fetch("{{ url('admin/user-toggle-status') }}/" + userId, {
+    fetch("<?php echo e(url('admin/user-toggle-status')); ?>/" + userId, {
         method: 'POST',
         headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
             'Accept': 'application/json'
         }
     })
@@ -175,4 +179,5 @@
     </script>
 </div>
 
-@include('layouts.footer')
+<?php echo $__env->make('layouts.footer', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+<?php /**PATH C:\xampp\htdocs\VELOCIUM\resources\views/Admin/alluser.blade.php ENDPATH**/ ?>

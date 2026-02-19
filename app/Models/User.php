@@ -12,9 +12,7 @@ class User extends Authenticatable
 
     protected $table = 'users';
 
-    /**
-     * Mass assignable attributes
-     */
+    /* ================= MASS ASSIGNABLE ================= */
     protected $fillable = [
         'prefix',
         'name',
@@ -22,6 +20,7 @@ class User extends Authenticatable
         'phone',
         'referal_code',
         'referal_by',
+
         'activation_balance',
         'withdrawable',
         'staking_balance',
@@ -30,27 +29,26 @@ class User extends Authenticatable
         'royalty_balance',
         'total_investment',
         'team_business',
+
         'type',
         'gender',
         'status',
+
         'password',
         'wallet_address',
+
         'account_name',
         'account_number',
         'ifsc_code',
     ];
 
-    /**
-     * Hidden attributes
-     */
+    /* ================= HIDDEN ================= */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Attribute casting
-     */
+    /* ================= CASTS ================= */
     protected $casts = [
         'activation_balance' => 'decimal:2',
         'withdrawable'       => 'decimal:2',
@@ -59,23 +57,51 @@ class User extends Authenticatable
         'royalty_balance'    => 'decimal:2',
         'total_investment'   => 'decimal:2',
         'team_business'      => 'decimal:2',
+
+        'direct_balance'     => 'integer',
         'status'             => 'integer',
         'type'               => 'integer',
+
         'password'           => 'hashed',
+        'created_at'         => 'datetime',
+        'updated_at'         => 'datetime',
     ];
 
     /* ================= RELATIONSHIPS ================= */
-//    
+
+    // User ke claim / transaction history
     public function claimHistories()
     {
-        return $this->hasMany(TransactionHistory::class);
+        return $this->hasMany(TransactionHistory::class, 'user_id', 'id');
     }
-    public function Referral()
+
+    // User ke investments
+    public function investmentHistories()
     {
-        return $this->hasMany(TransactionHistory::class, 'by', 'id');
+        return $this->hasMany(InvestmentHistory::class, 'user_id', 'id');
     }
-    public function investmentHistory()
+
+    // Direct referrals (jisne is user ka referral code use kiya)
+    public function referrals()
     {
-        return $this->hasMany(InvestmentHistory::class);
+        return $this->hasMany(User::class, 'referal_by', 'referal_code');
     }
+
+    // Parent / Sponsor
+    public function sponsor()
+    {
+        return $this->belongsTo(User::class, 'referal_by', 'referal_code');
+    }
+
+
+    public function scopeActive($query)
+{
+    return $query->where('status', 2);
+}
+
+public function scopeInactive($query)
+{
+    return $query->where('status', 0);
+}
+
 }
