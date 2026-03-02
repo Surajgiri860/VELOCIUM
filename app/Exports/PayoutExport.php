@@ -14,6 +14,9 @@ class PayoutExport implements FromCollection, WithHeadings
 
         $data = [];
 
+        $grandTotalBalance = 0;
+        $grandWithdrawable = 0;
+
         foreach ($users as $user) {
 
             $totalBalance = $user->staking_balance
@@ -21,13 +24,26 @@ class PayoutExport implements FromCollection, WithHeadings
                 + $user->level_balance
                 + $user->royalty_balance;
 
+            $finalWithdrawable = $user->withdrawable + $totalBalance;
+
+            $grandTotalBalance += $totalBalance;
+            $grandWithdrawable += $finalWithdrawable;
+
             $data[] = [
-                'User ID' => $user->referal_code,
-                'Name' => $user->name,
-                'Total Payout ($)' => $totalBalance,
-                'Final Withdrawable ($)' => $user->withdrawable + $totalBalance,
+                $user->referal_code,
+                $user->name,
+                $totalBalance,
+                $finalWithdrawable,
             ];
         }
+
+        // 👇 Add Grand Total Row
+        $data[] = [
+            'TOTAL',
+            '',
+            $grandTotalBalance,
+            $grandWithdrawable,
+        ];
 
         return collect($data);
     }
@@ -37,7 +53,7 @@ class PayoutExport implements FromCollection, WithHeadings
         return [
             'User ID',
             'Name',
-            'Total Payout ($)',
+            'Total Balance ($)',
             'Final Withdrawable ($)'
         ];
     }

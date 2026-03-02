@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\InvestmentHistory;
 use App\Models\TransactionHistory;
+use App\Models\Config;
 
 use App\Models\User;
 use App\Models\AddFund;
@@ -85,10 +86,18 @@ class TransactionsController extends Controller
         return view('Pages.transactions.TransactionSummary');
     }
 
-    public function addfund()
-    {
-        return view('Pages.transactions.AddFund');
-    }
+  
+
+public function addfund()
+{
+    $config = Config::first();
+
+    $requests = AddFund::where('user_id', auth()->id())
+                ->latest()
+                ->get();
+
+    return view('Pages.transactions.AddFund', compact('config','requests'));
+}
 
     public function addfundrequest(Request $request)
     {

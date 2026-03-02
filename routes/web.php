@@ -83,19 +83,33 @@ Route::namespace('App\Http\Controllers\Admin')->prefix('admin')->group(function 
         Route::get('/dummy_id', [ActiveUserIdController::class, 'dummy_id'])->name('dummy_id');
         Route::put('/active_dummy_id', [ActiveUserIdController::class, 'active_dummy_id'])->name('active_dummy_id');
         Route::get('/show_all_user', [AdminController::class, 'show_all_user'])->name('admin.show_all_user');
+        Route::get('/user-edit/{id}', [AdminController::class, 'editUser'])->name('admin.user.edit');
+        Route::post('/user-update/{id}', [AdminController::class, 'updateUser'])->name('admin.user.update');
        // Route::post('/update-user-status', [AdminController::class, 'updateUserStatus'])->name('update.user.status');
 
         // routes/web.php
         Route::get('/payout-list', [AdminController::class, 'showPayoutList'])->name('admin.payoutList');
         Route::post('/payout-closing', [AdminController::class, 'payoutClosing'])->name('payout.closing');
+       Route::get('/payout/download', [AdminController::class, 'downloadLatestPayout'])->name('payout.download.latest');
        
         Route::put('/withdraw/accept/{id}', [WithdrawalRequestController::class, 'acceptWithdrawRequest'])->name('accept_withdraw_req');
         Route::resource('invest_req', InvestmentRequestController::class);
-        Route::resource('addfund', AddFundController::class);
+        // Route::resource('addfund', AddFundController::class);
         Route::resource('active_user_id', ActiveUserIdController::class);
         Route::resource('withdrawal_requests', WithdrawalRequestController::class);
          Route::post('/user-toggle-status/{id}', [AdminController::class, 'toggleUserStatus'])->name('admin.user.toggleStatus');
-    });
+          // Add Fund Request Routes
+        Route::get('add-fund/pending', [AddFundController::class, 'index'])->name('add_fund.pending');
+        Route::get('add-fund/approved', [AddFundController::class, 'approved'])->name('add_fund.approved');
+        Route::get('add-fund/rejected', [AddFundController::class, 'rejected'])->name('add_fund.rejected');
+        Route::put('add-fund/accept/{id}', [AddFundController::class, 'accept_request'])->name('add_fund.accept');
+        Route::put('add-fund/reject/{id}', [AddFundController::class, 'reject_request'])->name('add_fund.reject');
+        Route::resource('addfund', AddFundController::class)->except(['create', 'store', 'edit', 'update', 'destroy']);
+
+        Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
+        Route::post('/settings/update', [AdminController::class, 'updateSettings'])->name('admin.settings.update');
+    
+         });
 
        
 });

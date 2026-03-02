@@ -1,4 +1,4 @@
-@include('includes.header')
+<?php echo $__env->make('includes.header', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
 <div class="content">
     <div class="row">
@@ -18,8 +18,8 @@
 
                 <div class="card-body form_design">
 
-                    {{-- QR + Address Section --}}
-                    @if(!empty($config->admin_address))
+                    
+                    <?php if(!empty($config->admin_address)): ?>
 
                     <div class="card mb-4" style="border:1px solid #ddd;">
                         <div class="card-body text-center">
@@ -27,11 +27,13 @@
                             <h5 style="margin-bottom:15px;">Scan QR Code</h5>
 
                             <div style="margin-bottom:15px;">
-                                {!! QrCode::size(200)->generate($config->admin_address) !!}
+                                <?php echo QrCode::size(200)->generate($config->admin_address); ?>
+
                             </div>
 
                             <div style="font-weight:bold; font-size:16px; word-break: break-all;">
-                                {{ $config->admin_address }}
+                                <?php echo e($config->admin_address); ?>
+
                             </div>
 
                             <button onclick="copyAddress()" 
@@ -48,12 +50,12 @@
                         </div>
                     </div>
 
-                    @endif
+                    <?php endif; ?>
 
 
-                    {{-- Add Fund Form --}}
-                    <form action="{{ route('add.fund.request') }}" method="POST" id="addFundForm">
-                        @csrf
+                    
+                    <form action="<?php echo e(route('add.fund.request')); ?>" method="POST" id="addFundForm">
+                        <?php echo csrf_field(); ?>
 
                         <div class="form-group">
                             <label>Amount (USDT): *</label>
@@ -85,8 +87,8 @@
         
     </div>
 </div>
-{{-- User Fund Requests History --}}
-@if(isset($requests) && $requests->count() > 0)
+
+<?php if(isset($requests) && $requests->count() > 0): ?>
 
 <div class="card mt-4">
     <div class="card-header text-center">
@@ -104,34 +106,34 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($requests as $key => $req)
+                <?php $__currentLoopData = $requests; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $req): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <tr>
-                    <td>{{ $key+1 }}</td>
-                    <td>${{ $req->amount }}</td>
-                    <td>{{ $req->transaction_id }}</td>
+                    <td><?php echo e($key+1); ?></td>
+                    <td>$<?php echo e($req->amount); ?></td>
+                    <td><?php echo e($req->transaction_id); ?></td>
                     <td>
-                        @if($req->status == 1)
+                        <?php if($req->status == 1): ?>
                             <span class="badge badge-warning">Pending</span>
-                        @elseif($req->status == 2)
+                        <?php elseif($req->status == 2): ?>
                             <span class="badge badge-success">Approved</span>
-                        @elseif($req->status == 3)
+                        <?php elseif($req->status == 3): ?>
                             <span class="badge badge-danger">Rejected</span>
-                        @endif
+                        <?php endif; ?>
                     </td>
                 </tr>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </tbody>
         </table>
     </div>
 </div>
 
-@endif
+<?php endif; ?>
 
-@include('includes.footer')
+<?php echo $__env->make('includes.footer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
 <script>
 function copyAddress() {
-    var address = "{{ $config->admin_address }}";
+    var address = "<?php echo e($config->admin_address); ?>";
 
     navigator.clipboard.writeText(address).then(function() {
 
@@ -150,4 +152,4 @@ function copyAddress() {
         alert("Failed to copy address ❌");
     });
 }
-</script>
+</script><?php /**PATH C:\xampp\htdocs\VELOCIUM\resources\views/Pages/transactions/AddFund.blade.php ENDPATH**/ ?>

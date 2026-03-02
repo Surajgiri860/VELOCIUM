@@ -211,14 +211,14 @@
                         <li><a href="{{route('admin.reject')}}">Reject</a> </li>
                      </ul>
                   </li>
-                  <li data-toggle="collapse" data-target="#Network" class="collapsed">
-                     <a><i class="fa fa-vcard"></i>Add Fund Request</a>
-                     <ul class="sub-menu collapse" id="Network">
-                        <li><a href="{{route('addfund.index')}}">Pending</a> </li>
-                        <li><a href="">Active</a> </li>
-                        <li><a href="">Reject</a> </li>
-                     </ul>
-                  </li>
+                <li data-toggle="collapse" data-target="#Network" class="collapsed">
+                  <a><i class="fa fa-vcard"></i>Add Fund Request</a>
+                  <ul class="sub-menu collapse" id="Network">
+                     <li><a href="{{ route('add_fund.pending') }}">Pending</a></li>
+                     <li><a href="{{ route('add_fund.approved') }}">Approved</a></li>
+                     <li><a href="{{ route('add_fund.rejected') }}">Rejected</a></li>
+                  </ul>
+               </li>
                   <li data-toggle="collapse" data-target="#Registration" class="collapsed">
                      <a><i class="fa fa-vcard"></i>Admin Active User Id</a>
                      <ul class="sub-menu collapse" id="Registration">
@@ -234,7 +234,13 @@
                         <li><a href="{{route('withdrawal_requests.reject')}}">Reject</a> </li> --}}
                      </ul>
                   </li>
-                 
+                  <li>
+                     <a href="{{ route('admin.settings') }}">
+                        <i class="fa fa-cog"></i>
+                        <p>Settings</p>
+                     </a>
+                  </li>
+                                 
                   <li>
                      <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                          <button type="button" style="background: none; display: flex; color: #25e487; border: none;">

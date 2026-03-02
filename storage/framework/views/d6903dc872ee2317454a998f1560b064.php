@@ -1,4 +1,4 @@
-<?php echo $__env->make('layouts.header', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+<?php echo $__env->make('layouts.header', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
 <div class="content">
     <div class="row">
@@ -78,6 +78,10 @@
                                                         <?php echo e($user->status == 2 ? 'Block' : 'Unblock'); ?>
 
                                                     </button>
+                                                    <a href="<?php echo e(route('admin.user.edit', $user->id)); ?>" 
+                                                            class="btn btn-sm btn-primary">
+                                                            Edit
+                                                            </a>
                                                     </td>
                                                 </tr>
                                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -179,5 +183,5 @@
     </script>
 </div>
 
-<?php echo $__env->make('layouts.footer', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+<?php echo $__env->make('layouts.footer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 <?php /**PATH C:\xampp\htdocs\VELOCIUM\resources\views/Admin/alluser.blade.php ENDPATH**/ ?>

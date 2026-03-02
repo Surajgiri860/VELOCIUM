@@ -10,79 +10,75 @@ use App\Models\User;
 class AddFundController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display pending fund requests
      */
     public function index()
     {
-        $add_fund_req = AddFund::with('user')->where('status', 1)->get();
-        // dd($Invest_req);
+        $add_fund_requests = AddFund::with('user')
+                              ->where('status', AddFund::STATUS_PENDING)
+                              ->get();
 
-        return view('Admin.add_fund.index', compact('add_fund_req'));
+        return view('Admin.add_fund.index', compact('add_fund_requests'));
     }
 
+    /**
+     * Display approved fund requests
+     */
+    public function approved()
+    {
+        $add_fund_requests = AddFund::with('user')
+                              ->where('status', AddFund::STATUS_APPROVED)
+                              ->get();
+
+        return view('Admin.add_fund.approved', compact('add_fund_requests'));
+    }
+
+    /**
+     * Display rejected fund requests
+     */
+    public function rejected()
+    {
+        $add_fund_requests = AddFund::with('user')
+                              ->where('status', AddFund::STATUS_REJECTED)
+                              ->get();
+
+        return view('Admin.add_fund.rejected', compact('add_fund_requests'));
+    }
+
+    /**
+     * Accept fund request
+     */
     public function accept_request(Request $request, string $id)
     {
         try {
-            $user_invest = AddFund::findOrFail($id);
-            $currentUser = User::findOrFail($user_invest->user_id);
+            $fundRequest = AddFund::findOrFail($id);
+            $user = User::findOrFail($fundRequest->user_id);
 
-            $currentUser->activation_balance += $user_invest->amount;
-            $user_invest->status = 2;
-            $user_invest->save();
-            $currentUser->save();
-            return redirect()->back()->with('success', 'Investment request accepted successfully!');
+            $user->activation_balance += $fundRequest->amount;
+            $fundRequest->status = AddFund::STATUS_APPROVED;
+            
+            $fundRequest->save();
+            $user->save();
+            
+            return redirect()->back()->with('success', 'Fund request accepted successfully!');
         } catch (\Exception $e) {
-
-
             return redirect()->back()->with('error', 'An error occurred while processing the request.');
         }
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Reject fund request
      */
-    public function create()
+    public function reject_request(Request $request, string $id)
     {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        try {
+            $fundRequest = AddFund::findOrFail($id);
+            $fundRequest->status = AddFund::STATUS_REJECTED;
+            $fundRequest->save();
+            
+            return redirect()->back()->with('success', 'Fund request rejected successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'An error occurred while processing the request.');
+        }
     }
 }

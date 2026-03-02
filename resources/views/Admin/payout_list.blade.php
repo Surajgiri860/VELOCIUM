@@ -126,9 +126,31 @@
          <form action="{{ route('payout.closing') }}" method="POST">
                 @csrf
                 <button type="submit" class="btn btn-lg btn-success">
-                    Process Payout & Download Excel
+                    Process Payout close
                 </button>
             </form>
+            <h2>
+            @php
+                $lastPayout = $payoutClosings->first();
+            @endphp
+
+            @if($lastPayout)
+            <div class="alert alert-info text-center">
+                Last Payout Date: 
+                {{ $lastPayout->created_at
+                    ->setTimezone('Asia/Kolkata')
+                    ->format('d M Y h:i A') }} IST
+            </div>
+            @endif
+             @if($payoutClosings->count())
+                <div class="text-center mt-4">
+                    <a href="{{ route('payout.download.latest') }}" 
+                    class="btn btn-lg btn-success">
+                        Download Last Payout Excel
+                    </a>
+                </div>
+            @endif
+            </h2>
             
         </div>
     </div>

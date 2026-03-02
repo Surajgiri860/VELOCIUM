@@ -1,6 +1,6 @@
 
 
-<?php echo $__env->make('layouts.header', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>;
+<?php echo $__env->make('layouts.header', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>;
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -126,9 +126,31 @@
          <form action="<?php echo e(route('payout.closing')); ?>" method="POST">
                 <?php echo csrf_field(); ?>
                 <button type="submit" class="btn btn-lg btn-success">
-                    Process Payout & Download Excel
+                    Process Payout close
                 </button>
             </form>
+            <h2>
+            <?php
+                $lastPayout = $payoutClosings->first();
+            ?>
+
+            <?php if($lastPayout): ?>
+            <div class="alert alert-info text-center">
+                Last Payout Date: 
+                <?php echo e($lastPayout->created_at
+                    ->setTimezone('Asia/Kolkata')
+                    ->format('d M Y h:i A')); ?> IST
+            </div>
+            <?php endif; ?>
+             <?php if($payoutClosings->count()): ?>
+                <div class="text-center mt-4">
+                    <a href="<?php echo e(route('payout.download.latest')); ?>" 
+                    class="btn btn-lg btn-success">
+                        Download Last Payout Excel
+                    </a>
+                </div>
+            <?php endif; ?>
+            </h2>
             
         </div>
     </div>
@@ -144,4 +166,4 @@
 </body>
 </html>
 
-<?php echo $__env->make('layouts.footer', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>;<?php /**PATH C:\xampp\htdocs\VELOCIUM\resources\views/Admin/payout_list.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.footer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>;<?php /**PATH C:\xampp\htdocs\VELOCIUM\resources\views/Admin/payout_list.blade.php ENDPATH**/ ?>

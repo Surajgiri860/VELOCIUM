@@ -76,6 +76,10 @@
                                                         onclick="toggleUserStatus({{ $user->id }}, this)">
                                                         {{ $user->status == 2 ? 'Block' : 'Unblock' }}
                                                     </button>
+                                                    <a href="{{ route('admin.user.edit', $user->id) }}" 
+                                                            class="btn btn-sm btn-primary">
+                                                            Edit
+                                                            </a>
                                                     </td>
                                                 </tr>
                                                 @endforeach

@@ -4,18 +4,11 @@
        <div class="col-md-12">
           <div class="card">
              <div class="card-header">
-                <h5 class="card-title">Pending Fund Requests</h5>
+                <h5 class="card-title">Rejected Fund Requests</h5>
              </div>
              <div class="card-body form_design">
                 <div class="row">
                    <div class="col-md-12">
-                      @if(session('success'))
-                        <div class="alert alert-success">{{ session('success') }}</div>
-                      @endif
-                      @if(session('error'))
-                        <div class="alert alert-danger">{{ session('error') }}</div>
-                      @endif
-                      
                       <div class="table-responsive">
                          <table class="table table-striped table-bordered">
                             <thead>
@@ -25,7 +18,6 @@
                                   <th>Amount</th>
                                   <th>Date</th>
                                   <th>Status</th>
-                                  <th>Action</th>
                                </tr>
                             </thead>
                             <tbody>
@@ -40,29 +32,15 @@
                                         <td>${{ number_format($request->amount, 2) }}</td>
                                         <td>{{ $request->created_at->format('d M Y h:i A') }}</td>
                                         <td>
-                                            <span class="badge bg-warning text-dark">
+                                            <span class="badge bg-danger">
                                                 {{ $request->status_label }}
                                             </span>
-                                        </td>
-                                        <td>
-                                           <form action="{{ route('add_fund.accept', $request->id) }}" method="POST">
-                                                 
-                                                @csrf
-                                                @method('PUT')
-                                                <button type="submit" class="btn btn-success btn-sm">Accept</button>
-                                            </form>
-                                            <form action="{{ route('add_fund.reject', $request->id) }}" method="POST">
-                                                 
-                                                @csrf
-                                                @method('PUT')
-                                                <button type="submit" class="btn btn-danger btn-sm">Reject</button>
-                                            </form>
                                         </td>
                                      </tr>
                                   @endforeach
                                @else
                                   <tr>
-                                     <td colspan="6" class="text-center">No pending fund requests found</td>
+                                     <td colspan="5" class="text-center">No rejected fund requests found</td>
                                   </tr>
                                @endif
                             </tbody>
