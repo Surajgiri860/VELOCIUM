@@ -104,4 +104,9 @@ public function scopeInactive($query)
     return $query->where('status', 0);
 }
 
+
+public function investmentHistory()
+{
+    return $this->hasMany(InvestmentHistory::class, 'user_id', 'id');
+}
 }

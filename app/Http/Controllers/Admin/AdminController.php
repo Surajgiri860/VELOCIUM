@@ -106,28 +106,27 @@ class AdminController extends Controller
     }
 
     public function payoutClosing()
-    {
-        $users = User::all();
+{
+    $users = User::all();
 
-        foreach ($users as $user) {
-            // Calculate the total balance for the user
-            $totalBalance = $user->staking_balance
-                + $user->direct_balance
-                + $user->level_balance
-                + $user->royalty_balance;
-            // dd($totalBalance);
-            // Update the user's withdrawable balance and reset individual balances
-            $user->update([
-                'withdrawable' => $user->withdrawable + $totalBalance, // Increment withdrawable
-                'staking_balance' => 0, // Reset balances
-                'direct_balance' => 0,
-                'level_balance' => 0,
-                'royalty_balance' => 0,
-            ]);
-        }
+    foreach ($users as $user) {
 
-        return redirect()->back()->with('success', 'Payouts have been closed, and balances reset.');
+        $totalBalance = $user->staking_balance
+            + $user->direct_balance
+            + $user->level_balance
+            + $user->royalty_balance;
+
+        $user->update([
+            'withdrawable' => $user->withdrawable + $totalBalance,
+            'staking_balance' => 0,
+            'direct_balance' => 0,
+            'level_balance' => 0,
+            'royalty_balance' => 0,
+        ]);
     }
+
+    return Excel::download(new PayoutExport, 'payout-report.xlsx');
+}
 
     public function showPayoutList()
         {

@@ -1,6 +1,6 @@
 
-{{-- include header --}}
-@include('layouts.header');
+
+<?php echo $__env->make('layouts.header', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>;
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -70,12 +70,12 @@
     </style>
 </head>
 <body>
-    @section('content')
+    <?php $__env->startSection('content'); ?>
     <div class="container">
         <h2 class="mb-4 text-center">Payout Closing - User List</h2>
         <!-- <div class="text-center mt-4">
-            <form action="{{ route('payout.closing') }}" method="POST" style="display: inline;">
-                @csrf
+            <form action="<?php echo e(route('payout.closing')); ?>" method="POST" style="display: inline;">
+                <?php echo csrf_field(); ?>
                 <button type="submit" class="btn btn-lg btn-success">Process Payout</button>
             </form>
             
@@ -92,39 +92,39 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @php
+                    <?php
                         $grandTotalBalance = 0;
                         $grandWithdrawableBalance = 0;
-                    @endphp
-                    @foreach($users as $user)
-                        @php
+                    ?>
+                    <?php $__currentLoopData = $users; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php
                             $totalBalance = $user->staking_balance + $user->direct_balance + $user->level_balance + $user->royalty_balance;
                             $withdrawableBalance = $user->withdrawable + $totalBalance;
 
                             $grandTotalBalance += $totalBalance;
                             $grandWithdrawableBalance += $withdrawableBalance;
-                        @endphp
+                        ?>
                         <tr>
-                            <td><strong>{{ $user->referal_code }}</strong></td>
-                            <td>{{ $user->name }}</td>
-                            <td>${{ number_format($totalBalance, 2) }}</td>
-                            <td>${{ number_format($withdrawableBalance, 2) }}</td>
+                            <td><strong><?php echo e($user->referal_code); ?></strong></td>
+                            <td><?php echo e($user->name); ?></td>
+                            <td>$<?php echo e(number_format($totalBalance, 2)); ?></td>
+                            <td>$<?php echo e(number_format($withdrawableBalance, 2)); ?></td>
                         </tr>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </tbody>
                 <tfoot class="table-light">
                     <tr>
                         <th colspan="2" class="text-right">Total:</th>
-                        <th>${{ number_format($grandTotalBalance, 2) }}</th>
-                        <th>${{ number_format($grandWithdrawableBalance, 2) }}</th>
+                        <th>$<?php echo e(number_format($grandTotalBalance, 2)); ?></th>
+                        <th>$<?php echo e(number_format($grandWithdrawableBalance, 2)); ?></th>
                     </tr>
                 </tfoot>
             </table>
         </div>
 
         <div class="text-center mt-4">
-         <form action="{{ route('payout.closing') }}" method="POST">
-                @csrf
+         <form action="<?php echo e(route('payout.closing')); ?>" method="POST">
+                <?php echo csrf_field(); ?>
                 <button type="submit" class="btn btn-lg btn-success">
                     Process Payout & Download Excel
                 </button>
@@ -143,5 +143,5 @@
     </script>
 </body>
 </html>
-{{-- include footer --}}
-@include('layouts.footer');
+
+<?php echo $__env->make('layouts.footer', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>;<?php /**PATH C:\xampp\htdocs\VELOCIUM\resources\views/Admin/payout_list.blade.php ENDPATH**/ ?>
