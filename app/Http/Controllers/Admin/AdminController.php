@@ -260,7 +260,7 @@ public function settings()
         ]);
     }
 
-    return view('admin.settings', compact('config'));
+    return view('Admin.settings', compact('config'));
 }
 
 public function updateSettings(Request $request)
