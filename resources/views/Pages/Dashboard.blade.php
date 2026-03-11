@@ -1,7 +1,34 @@
-
 @include('includes.header');
                <div class="content">
                   <input type="hidden" name="ctl00$ContentPlaceHolder1$HidOrgTypeDashboard" id="HidOrgTypeDashboard" />
+                  
+                  <!-- System Update Popup Message -->
+                  <div class="modal-dialog modal-sm divpopup" id="divSystemUpdate" style="width: 450px; display: none; z-index: 9999; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); margin: 0;">
+                     <div class="modal-content">
+                        <div class="modal-header" style="background-color: #ffc107; color: #000;">
+                           <h4 class="modal-title" style="font-weight: bold;">📢 Velocium System Update</h4>
+                           <button type="button" class="close" onclick="closeSystemUpdate();"><span aria-hidden="true">×</span></button>
+                        </div>
+                        <div class="divpopup-inner" style="padding: 20px;">
+                           <div class="row">
+                              <div class="col-sm-12 col-xs-12">
+                                 <div style="font-size: 16px; line-height: 1.6;">
+                                    <p>Dear Users,</p>
+                                    <p>Due to a temporary <strong>technical issue</strong>, the payout that was scheduled earlier will now be processed on <strong style="color: #28a745;">15 March 2026</strong>.</p>
+                                    <p>Our technical team is currently working to resolve the issue and ensure that the payout process runs smoothly. We sincerely apologize for the inconvenience and appreciate your patience and understanding.</p>
+                                    <p>Thank you for your continued support of <strong>Velocium System</strong>.</p>
+                                    <p style="margin-top: 20px;">— Team Velocium</p>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="divpopbutton" style="text-align: center; padding: 15px;">
+                           <input type="button" class="btn btn-warning hvr-glow" value="Close" onclick="closeSystemUpdate();" />
+                        </div>
+                     </div>
+                  </div>
+                  
                   <div class="modal-dialog modal-sm divpopup" id="divShareLink" style="width: 400px; display: none;">
                      <div class="modal-content">
                         <div class="modal-header">
@@ -342,6 +369,53 @@
                    // Optionally, show a message that the link was copied
                    alert("Referral link copied: " + referralInput.value);
                }
+
+               // Function to show system update popup
+               function showSystemUpdate() {
+                   document.getElementById('divSystemUpdate').style.display = 'block';
+               }
+
+               // Function to close system update popup
+               function closeSystemUpdate() {
+                   document.getElementById('divSystemUpdate').style.display = 'none';
+               }
+
+               // Auto-show the popup when page loads
+               window.onload = function() {
+                   showSystemUpdate();
+                   
+                   // Optional: Check if user has already seen it (using localStorage)
+                   // if(!localStorage.getItem('systemUpdateShown')) {
+                   //     showSystemUpdate();
+                   //     localStorage.setItem('systemUpdateShown', 'true');
+                   // }
+               };
                </script>
                
+               <!-- Add overlay for better popup visibility -->
+               <style>
+               #divSystemUpdate {
+                   box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                   border-radius: 8px;
+               }
                
+               /* Optional: Add overlay background */
+               .modal-backdrop {
+                   position: fixed;
+                   top: 0;
+                   left: 0;
+                   width: 100%;
+                   height: 100%;
+                   background: rgba(0,0,0,0.5);
+                   z-index: 9998;
+                   display: none;
+               }
+               
+               /* Show backdrop when popup is visible */
+               #divSystemUpdate[style*="display: block"] + .modal-backdrop {
+                   display: block;
+               }
+               </style>
+               
+               <!-- Add backdrop div -->
+               <div class="modal-backdrop" id="modalBackdrop"></div>
