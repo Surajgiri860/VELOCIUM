@@ -36,7 +36,7 @@ class NetworkController extends Controller
         $allUsers = collect();
 
         // Start with the user's referral code
-        $currentReferalCodes = collect([$user_data->referal_by]);
+        $currentReferalCodes = collect([$user_data->referal_code]);
 
         // Loop through levels up to the max level (20) or requested level
         for ($i = 1; $i <= 30; $i++) {
@@ -51,7 +51,7 @@ class NetworkController extends Controller
             $allUsers = $allUsers->merge($users);
 
             // Prepare referral codes for the next level
-            $currentReferalCodes = $users->pluck('id');
+            $currentReferalCodes = $users->pluck('referal_code');
 
             if ($selectedLevel == $i) {
                 // Paginate users at the specific selected level
