@@ -113,22 +113,33 @@ class InvestmentRequestController extends Controller
 
             $config = Config::first();
 
-            for ($i = 0; $i < 20; $i++) {
-                $sponsor  = $currentUser->referal_by;
+           for ($i = 0; $i < 20; $i++) {
 
+                $sponsor  = $currentUser->referal_by;
                 $sponsorUser = User::where('referal_code', $sponsor)->first();
 
-                if ($sponsorUser) {
-                    Log::info("No sponsor found for User ID {$currentUser->id}. Stopping the loop.");
-                    break; // Exit the loop if no sponsor is found
+                if (!$sponsorUser) {
+                    break;
                 }
+
+                // ✅ 20 level business (already existing)
                 $sponsorUser->team_business += $user_invest->amount;
 
+                // ✅ Level 1 = Direct Business
+                if ($i == 0) {
+                    $sponsorUser->total_direct_business += $user_invest->amount;
+                }
+
+                // ✅ Level 1 to 4 = Business Volume
+                if ($i < 4) {
+                    $sponsorUser->total_business_volume += $user_invest->amount;
+                }
+
+                // ✅ Direct bonus (same as before)
                 if ($i == 0) {
                     $direct_bonus = $user_invest->amount * $config->direct_sponser / 100;
                     $sponsorUser->direct_balance += $direct_bonus;
 
-                    // Create transaction history for the direct sponsor bonus
                     TransactionHistory::create([
                         'to' => $sponsorUser->id,
                         'by' => $currentUser->id,
@@ -137,9 +148,9 @@ class InvestmentRequestController extends Controller
                     ]);
                 }
 
-
                 $sponsorUser->save();
-                // change the stat
+
+                // Next upline
                 $currentUser = $sponsorUser;
             }
 
