@@ -16,6 +16,8 @@ use App\Http\Controllers\Admin\InvestmentRequestController;
 use App\Http\Controllers\Admin\AddFundController;
 use App\Http\Controllers\Admin\WithdrawalRequestController;
 use App\Http\Controllers\Admin\ActiveUserIdController;
+use App\Http\Controllers\BonanzaRewardsController;
+use App\Http\Controllers\Admin\BonanzaAdminController;
 use App\Mail\OtpMail;
 
 // Public routes
@@ -65,6 +67,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('UploadDocument', WalletAddressController::class);
     Route::resource('Network', NetworkController::class);
     Route::resource('Activate', ActivateController::class);
+    Route::get('/bonanza-rewards', [BonanzaRewardsController::class, 'index'])->name('bonanza.rewards');
+    Route::post('/bonanza-claim/{rewardId}', [BonanzaRewardsController::class, 'claimReward'])->name('bonanza.claim');
+    // routes/web.php
+Route::get('/bonanza-history', [BonanzaRewardsController::class, 'getHistory'])->name('bonanza.history');
 });
 Route::namespace('App\Http\Controllers\Admin')->prefix('admin')->group(function () {
     Route::get('login', [AdminController::class, 'showLoginForm']);
@@ -108,6 +114,9 @@ Route::namespace('App\Http\Controllers\Admin')->prefix('admin')->group(function 
 
         Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
         Route::post('/settings/update', [AdminController::class, 'updateSettings'])->name('admin.settings.update');
+
+         Route::get('/bonanza-history', [BonanzaAdminController::class, 'index'])->name('admin.bonanza.history');
+Route::get('/bonanza-release/{id}', [BonanzaAdminController::class, 'release'])->name('admin.bonanza.release');
     
          });
 

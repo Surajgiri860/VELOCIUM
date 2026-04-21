@@ -1,0 +1,35 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+       Schema::create('rank_reward_histories', function (Blueprint $table) {
+    $table->id();
+
+    $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+    $table->foreignId('reward_id')->constrained('rank_rewards')->cascadeOnDelete();
+
+    $table->string('rank_name');
+    $table->string('reward_name');
+    $table->decimal('amount', 12, 2)->default(0);
+
+    $table->timestamps();
+});
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('rank_reward_histories');
+    }
+};

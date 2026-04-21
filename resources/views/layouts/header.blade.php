@@ -240,6 +240,12 @@
                         <p>Settings</p>
                      </a>
                   </li>
+                  <li>
+                  <a href="{{ route('admin.bonanza.history') }}">
+                     <i class="fa fa-gift"></i>
+                     <p>Bonanza History</p>
+                  </a>
+               </li>
                                  
                   <li>
                      <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

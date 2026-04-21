@@ -256,6 +256,12 @@
                       </ul>
                   </li>
                   <li>
+    <a href="{{ route('bonanza.rewards') }}">
+        <i class="fa fa-trophy"></i>
+        <p>Bonanza Rewards</p>
+    </a>
+</li>
+                  <li>
                      
                   <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                      @csrf 

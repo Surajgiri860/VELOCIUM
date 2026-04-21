@@ -66,6 +66,12 @@
                    <li><a href="ReportROILevelIncome.aspx">Cashback Level Income</a></li>
                 </ul>
              </li>
+              <li>
+    <a href="{{ route('bonanza.rewards') }}">
+        <i class="fa fa-trophy"></i>
+        <p>Bonanza Rewards</p>
+    </a>
+</li>
              <li>
                 <a href="Logout.aspx">
                    <i class="fa fa-sign-out"></i>

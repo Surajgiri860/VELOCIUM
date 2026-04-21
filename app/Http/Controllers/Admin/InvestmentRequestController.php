@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use App\Models\RankReward;
+use App\Models\RankRewardHistory;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\InvestmentHistory;
@@ -112,6 +114,8 @@ class InvestmentRequestController extends Controller
             // Record the investment in the InvestmentHistory table
 
             $config = Config::first();
+            
+            $this->checkRankReward($currentUser);
 
            for ($i = 0; $i < 20; $i++) {
 
@@ -150,6 +154,9 @@ class InvestmentRequestController extends Controller
 
                 $sponsorUser->save();
 
+                  $this->checkRankReward($sponsorUser);
+                  $this->updateAllUsersRankFromHistory();
+
                 // Next upline
                 $currentUser = $sponsorUser;
             }
@@ -176,4 +183,85 @@ class InvestmentRequestController extends Controller
     {
         //
     }
+
+   
+
+public function checkRankReward($user)
+{
+    $rewards = DB::table('rank_rewards')
+        ->orderBy('direct_required', 'asc')
+        ->get();
+
+    $highestRank = null;
+    $highestValue = 0;
+
+    foreach ($rewards as $reward) {
+
+        if (
+            $user->total_direct_business >= $reward->direct_required &&
+            $user->total_business_volume >= $reward->team_required
+        ) {
+
+            // Track highest rank
+            if ($reward->direct_required > $highestValue) {
+                $highestValue = $reward->direct_required;
+                $highestRank = $reward->rank_name;
+            }
+
+            $exists = DB::table('rank_reward_histories')
+                ->where('user_id', $user->id)
+                ->where('reward_id', $reward->id)
+                ->exists();
+
+            if (!$exists) {
+                DB::table('rank_reward_histories')->insert([
+                    'user_id' => $user->id,
+                    'reward_id' => $reward->id,
+                    'rank_name' => $reward->rank_name,
+                    'reward_name' => $reward->reward_name,
+                    'amount' => $reward->reward_amount,
+                    'status' => 0,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+    }
+
+    // ✅ FINAL: set only highest rank
+    // if ($highestRank) {
+    //     $user->current_rank = $highestRank;
+    //     $user->save();
+    // }
+}
+
+public function updateAllUsersRankFromHistory()
+{
+    // Sab users ke unique IDs le lo history se
+    $userIds = DB::table('rank_reward_histories')
+        ->select('user_id')
+        ->distinct()
+        ->pluck('user_id');
+
+    foreach ($userIds as $userId) {
+
+        // Highest rank find karo
+        $highest = DB::table('rank_reward_histories')
+            ->where('rank_reward_histories.user_id', $userId)
+            ->join('rank_rewards', 'rank_reward_histories.reward_id', '=', 'rank_rewards.id')
+            ->orderBy('rank_rewards.direct_required', 'desc') // highest first
+            ->select('rank_reward_histories.rank_name')
+            ->first();
+
+        if ($highest) {
+            DB::table('users')
+                ->where('id', $userId)
+                ->update([
+                    'current_rank' => $highest->rank_name
+                ]);
+        }
+    }
+
+    return true;
+}
 }

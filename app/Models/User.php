@@ -29,6 +29,9 @@ class User extends Authenticatable
         'royalty_balance',
         'total_investment',
         'team_business',
+        'total_direct_business',
+        'total_business_volume',    
+         'current_rank',    
 
         'type',
         'gender',
@@ -57,6 +60,9 @@ class User extends Authenticatable
         'royalty_balance'    => 'decimal:2',
         'total_investment'   => 'decimal:2',
         'team_business'      => 'decimal:2',
+        'total_direct_business' => 'decimal:2',
+        'total_business_volume' => 'decimal:2',     
+        'current_rank' => 'integer',
 
         'direct_balance'     => 'integer',
         'status'             => 'integer',
