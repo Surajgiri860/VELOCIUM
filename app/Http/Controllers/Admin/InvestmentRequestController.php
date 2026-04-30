@@ -106,7 +106,7 @@ class InvestmentRequestController extends Controller
             $currentUser = User::where('id', $user_invest->user_id)->first();
 
             $currentUser->total_investment += $user_invest->package->amount;
-            $currentUser->team_business += $user_invest->amount;
+            // $currentUser->team_business += $user_invest->amount;
             $currentUser->status = 2;
             $user_invest->status = 2;
             $user_invest->save();
