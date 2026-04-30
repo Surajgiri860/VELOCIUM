@@ -131,87 +131,92 @@ class ActivateController extends Controller
         echo "successfull executed";
     }
 
-    public function level_income()
-    {
-        // Get today's date to prevent double payouts
-        $today = now()->format('Y-m-d');
+   public function level_income()
+{
+    $today = now()->format('Y-m-d');
 
-        // Get all users and level stats from the database
-        $allUsers = User::all();
-        $levelStats = Level::all()->keyBy('level'); // Fetch level stats and key by level
+    // Saare users aur level stats
+    $allUsers = User::all();
+    $levelStats = Level::all()->keyBy('level');
 
-        // Iterate over each user in the system
-        foreach ($allUsers as $user) {
-            Log::info("Processing User: {$user->id}");
+    foreach ($allUsers as $user) {
 
-            // Check if the user has a referrer
-            $referrer = $user->referal_by;
-            $currentLevel = 1; // Start from level 1
+        Log::info("Processing User: {$user->id}");
 
-            // Loop through up to 20 levels to distribute income
-            while ($currentLevel <= 20) {
-                // If no referrer code is present, break out of the loop
-                if (!$referrer) {
-                    Log::info("No referrer found for User ID: {$user->id} at Level: {$currentLevel}. Ending distribution.");
-                    break;
-                }
+        $referrerCode = $user->referal_by;
+        $currentLevel = 1;
 
-                // Get the referrer user data
-                $referrerUser = User::where('referal_code', $referrer)
-                    ->where('status', 2)
-                    ->first();
+        // Max 10 levels
+        while ($currentLevel <= 10) {
 
-                // If referrer user does not exist or is inactive, log and move to the next level
-                if (!$referrerUser) {
-                    Log::info("Referrer User not found or inactive for referral code: {$referrer}. Skipping to next level.");
-                    $currentLevel++;
-                    $referrer = null; // Set referrer to null to exit in the next iteration
-                    continue;
-                }
-
-                // Check the referrer's direct referral count
-                $referrerUserCount = User::where('referal_by', $referrerUser->referal_code)
-                    ->where('status', 2)
-                    ->count();
-
-                // Ensure that the current level exists in levelStats
-                if (isset($levelStats[$currentLevel])) {
-                    $levelStat = $levelStats[$currentLevel];
-                    Log::info("Level {$currentLevel} Stats - Required Directs: {$levelStat->direct}");
-
-                    // Check if the direct condition is fulfilled for the current level
-                    if ($referrerUserCount >= $levelStat->direct) {
-                        Log::info("Referrer User ID: {$referrerUser->id} meets direct condition.");
-
-                        // If the referrer hasn't received income for this level and user today
-                        if (!$this->hasReceivedIncome($referrerUser->id, $user->id, $currentLevel, $today)) {
-                            // Calculate income based on the user's total investment and level percentage
-                            $incomeAmount = ($user->total_investment * $levelStat->level_per) / 3000;
-                            $referrerUser->level_balance += $incomeAmount;
-                            $referrerUser->save();
-                            $referrerUser->increment('level_balance', $incomeAmount); // Update referrer’s level balance
-
-                            // Log the income distribution
-                            $this->logIncome($referrerUser->id, $user->id, $incomeAmount, $currentLevel, $today);
-
-                            Log::info("Distributed Income: {$incomeAmount} to Referrer User ID: {$referrerUser->id} at Level: {$currentLevel}");
-                        } else {
-                            Log::info("Income already distributed for Referrer User ID: {$referrerUser->id} at Level: {$currentLevel}.");
-                        }
-                    } else {
-                        Log::info("Direct condition not met for Referrer User ID: {$referrerUser->id} at Level: {$currentLevel}. Moving to next level.");
-                    }
-                } else {
-                    Log::info("Level stats not found for Level: {$currentLevel}. Ending distribution.");
-                    break;
-                }
-
-                // Move to the next level and update referrer
-                $referrer = $referrerUser->referal_by;
-                $currentLevel++;
+            if (!$referrerCode) {
+                Log::info("No referrer for User {$user->id} at level {$currentLevel}");
+                break;
             }
+
+            // Referrer user
+            $referrerUser = User::where('referal_code', $referrerCode)
+                ->where('status', 2)
+                ->first();
+
+            if (!$referrerUser) {
+                Log::info("Invalid/Inactive referrer at level {$currentLevel}");
+                break;
+            }
+
+            // ✅ Direct condition (LEVEL = DIRECT REQUIRED)
+            $requiredDirects = $currentLevel;
+            $userDirects = $referrerUser->total_direct;
+
+            Log::info("Level {$currentLevel} Check -> Required: {$requiredDirects}, User Has: {$userDirects}");
+
+            if ($userDirects >= $requiredDirects) {
+
+                // Level stats check
+                if (!isset($levelStats[$currentLevel])) {
+                    Log::info("Level {$currentLevel} stats not found");
+                    break;
+                }
+
+                $levelStat = $levelStats[$currentLevel];
+
+                // Already income mila ya nahi check
+                if (!$this->hasReceivedIncome($referrerUser->id, $user->id, $currentLevel, $today)) {
+
+                    // Income calculation
+                    $incomeAmount = ($user->total_investment * $levelStat->level_per) / 3000;
+
+                    if ($incomeAmount > 0) {
+
+                        // Direct increment (no double save)
+                        $referrerUser->increment('level_balance', $incomeAmount);
+
+                        // Log income
+                        $this->logIncome(
+                            $referrerUser->id,
+                            $user->id,
+                            $incomeAmount,
+                            $currentLevel,
+                            $today
+                        );
+
+                        Log::info("✅ Level {$currentLevel} Income {$incomeAmount} given to User {$referrerUser->id}");
+                    }
+
+                } else {
+                    Log::info("⛔ Already paid Level {$currentLevel} to User {$referrerUser->id}");
+                }
+
+            } else {
+                Log::info("❌ Direct condition failed at Level {$currentLevel} for User {$referrerUser->id}");
+            }
+
+            // Next upline
+            $referrerCode = $referrerUser->referal_by;
+            $currentLevel++;
         }
     }
+}
 
 
 

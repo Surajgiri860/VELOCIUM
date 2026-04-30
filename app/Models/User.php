@@ -20,6 +20,7 @@ class User extends Authenticatable
         'phone',
         'referal_code',
         'referal_by',
+        'total_direct',
 
         'activation_balance',
         'withdrawable',
@@ -67,6 +68,7 @@ class User extends Authenticatable
         'direct_balance'     => 'integer',
         'status'             => 'integer',
         'type'               => 'integer',
+        'total_direct' => 'integer',
 
         'password'           => 'hashed',
         'created_at'         => 'datetime',

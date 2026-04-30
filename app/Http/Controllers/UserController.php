@@ -72,6 +72,11 @@ class UserController extends Controller
                 'referal_code' => "VEL" . random_int(100000, 999999),
                 'referal_by' => $request->referal_by, // Save referral user ID if available
             ]);
+            // Sponsor ka total_direct update karo
+                if (!empty($request->referal_by)) {
+                    User::where('referal_code', $request->referal_by)
+                        ->increment('total_direct');
+                }
             // dd($user);
             Log::info('User password from DB', ['hashed_password' => $user->password]);
             DB::commit();
