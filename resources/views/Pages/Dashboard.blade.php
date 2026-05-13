@@ -299,10 +299,10 @@
                             <th style="width: 80px;" class="tdjobid">Level Reward</th>
                             <th style="width: 100px; text-align: right;" id="tdSonsorLevelIncome">{{number_format($user_data->level_balance,2)}}</th>
                         </tr>
-                        <!-- <tr>
+                        <tr>
                             <th style="width: 80px;" class="tdjobid">Direct Income</th>
                             <th style="width: 100px; text-align: right;">{{number_format($user_data->direct_balance,2)}}</th>
-                        </tr> -->
+                        </tr>
                         <tr>
                             <th style="width: 80px;" class="tdjobid">Royalty Rewards</th>
                             <th style="width: 100px; text-align: right;" id="tdROILevelIncome">{{number_format($user_data->royalty_balance,2)}}</th>
