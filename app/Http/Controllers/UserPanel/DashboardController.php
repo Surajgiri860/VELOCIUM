@@ -92,8 +92,8 @@ class DashboardController extends Controller
 
 
             $one_day_roi = $amount * $daily_roi / 100;
-            $amount_3x_earning = $amount * 3;
-            $Balance_Earning += $amount_3x_earning;
+            $amount_5x_earning = $amount * 5;
+            $Balance_Earning += $amount_5x_earning;
             // Add the daily ROI of this investment to the total
             $total_daily_roi += $one_day_roi;
         }
