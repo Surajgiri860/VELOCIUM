@@ -184,7 +184,17 @@ class ActivateController extends Controller
                 if (!$this->hasReceivedIncome($referrerUser->id, $user->id, $currentLevel, $today)) {
 
                     // Income calculation
-                    $incomeAmount = ($user->total_investment * $levelStat->level_per) / 3000;
+                   $incomeAmount = ($user->total_investment * $levelStat->level_per) / 3000;
+
+                    // User ke active investment me package check karo
+                    $hasHalfLevelPackage = InvestmentHistory::where('user_id', $user->id)
+                        ->whereIn('package_id', [8, 9, 10])
+                        ->where('status', 1) // agar active investment status 1 hai
+                        ->exists();
+
+                    if ($hasHalfLevelPackage) {
+                        $incomeAmount = $incomeAmount / 2;
+                    }
 
                     if ($incomeAmount > 0) {
 
