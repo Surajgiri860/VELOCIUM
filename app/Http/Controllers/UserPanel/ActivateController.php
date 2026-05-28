@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use App\Models\Level;
 use App\Models\User;
 use App\Models\TransactionHistory;
+use Illuminate\Support\Facades\DB;  
 
 class ActivateController extends Controller
 {
@@ -67,69 +68,111 @@ class ActivateController extends Controller
         }
     }
 
-    public function claimDaily()
-    {
-        $currentDate = Carbon::now();
+   public function claimDaily()
+{
+    $currentDate = Carbon::now();
 
-        $users = User::whereHas('investmentHistory', function ($query) {
-            $query->where('status', 2)
-                ->where('type', 1); // Only include users with active investments
-        })->get();
+    $users = User::whereHas('investmentHistory', function ($query) {
+        $query->where('status', 2)
+              ->where('type', 1);
+    })->get();
 
-        foreach ($users as $user) {
-            Log::info("Active user  {$user->id}");
+    foreach ($users as $user) {
+        try {
+            Log::info("Processing ROI for user: {$user->id}");
 
             $lastClaim = TransactionHistory::where('user_id', $user->id)
                 ->where('type', 4)
                 ->latest()
                 ->first();
 
-            // Determine last claim date
+            // ✅ FIX 1: Last claim date determine karo
             if ($lastClaim === null) {
-                $lastClaimDate = $user->created_at; // Use the user's created date if no claims
+                // Pehli baar claim — user ki investment start date se calculate karo
+                // ya safe option: sirf 1 din ka ROI do
+                $lastClaimDate = $currentDate->copy()->subDays(1);
             } else {
                 $lastClaimDate = $lastClaim->created_at;
             }
 
-            // Calculate the number of hours since the last claim
             $hoursSinceLastClaim = $lastClaimDate->diffInHours($currentDate);
-            if ($hoursSinceLastClaim >= 24) {
-                $user_investments = InvestmentHistory::with('package')
-                    ->where('user_id', $user->id)
-                    ->where('status', 2)
-                    ->get();
 
-                $totalBalance = 0;
-
-                // Calculate total ROI for the number of days since the last claim
-                foreach ($user_investments as $investment) {
-                    $daily_roi = floatval($investment->package->daily_ear_per); // ROI percentage
-                    $amount = floatval($investment->amount); // Investment amount
-
-                    // Calculate daily ROI for the number of days since the last claim
-                    $one_day_roi = $amount * $daily_roi / 100;
-                    $totalBalance += $one_day_roi * ($hoursSinceLastClaim / 24);
-                }
-
-                if ($totalBalance > 0) {
-                    // Create a transaction record for the user
-                    TransactionHistory::create([
-                        'user_id' => $user->id,
-                        'amount' => $totalBalance,
-                        'type' => "4",
-                        'claimed_at' => $currentDate, // Capture the claim time
-                    ]);
-
-                    // Update the user's balance
-                    $user->staking_balance += $totalBalance; // Directly add the total balance
-                    $user->save();
-                }
-            } else {
-                echo "user id " . $user->id . "already credited with today roi income";
+            // 24 ghante pura hua ya nahi
+            if ($hoursSinceLastClaim < 24) {
+                Log::info("User {$user->id} already credited today. Hours since last: {$hoursSinceLastClaim}");
+                continue;
             }
+
+            // ✅ FIX 2: Cap days — max 7 din tak hi allow karo (cron miss ho toh bhi safe)
+            $daysToCredit = min(floor($hoursSinceLastClaim / 24), 7);
+
+            // ✅ FIX 3: Investments fetch karo with null-safe package check
+            $user_investments = InvestmentHistory::with('package')
+                ->where('user_id', $user->id)
+                ->where('status', 2)
+                ->get();
+
+            $totalBalance = 0;
+
+            foreach ($user_investments as $investment) {
+                // ✅ FIX 4: Package null check
+                if (!$investment->package) {
+                    Log::warning("User {$user->id}, Investment {$investment->id} has no package. Skipping.");
+                    continue;
+                }
+
+                $daily_roi = floatval($investment->package->daily_ear_per);
+                $amount    = floatval($investment->amount);
+
+                // Investment ke active hone ke baad ka actual time calculate karo
+                $investmentStart = Carbon::parse($investment->created_at);
+                $effectiveStart  = $investmentStart->greaterThan($lastClaimDate)
+                    ? $investmentStart
+                    : $lastClaimDate;
+
+                $effectiveDays = min(
+                    floor($effectiveStart->diffInHours($currentDate) / 24),
+                    $daysToCredit
+                );
+
+                if ($effectiveDays <= 0) continue;
+
+                $one_day_roi   = $amount * $daily_roi / 100;
+                $totalBalance += $one_day_roi * $effectiveDays;
+
+                Log::info("User {$user->id} | Investment {$investment->id} | Days: {$effectiveDays} | ROI: {$one_day_roi} | Total so far: {$totalBalance}");
+            }
+
+            if ($totalBalance <= 0) {
+                Log::info("User {$user->id} — totalBalance is 0, skipping transaction.");
+                continue;
+            }
+
+            // ✅ FIX 5: DB Transaction — atomic operation
+            DB::transaction(function () use ($user, $totalBalance, $currentDate) {
+                TransactionHistory::create([
+                    'user_id'    => $user->id,
+                    'amount'     => $totalBalance,
+                    'type'       => 4,
+                    'claimed_at' => $currentDate,
+                ]);
+
+                // increment() se race condition avoid hogi
+                User::where('id', $user->id)->increment('staking_balance', $totalBalance);
+            });
+
+            Log::info("User {$user->id} credited ₹{$totalBalance} successfully.");
+
+        } catch (\Exception $e) {
+            // ✅ FIX 6: Ek user fail ho toh baaki process hote rahe
+            Log::error("ROI failed for user {$user->id}: " . $e->getMessage());
+            continue;
         }
-        echo "successfull executed";
     }
+
+    Log::info("claimDaily completed at {$currentDate}");
+    echo "Successfully executed";
+}
 
    public function level_income()
 {
@@ -189,7 +232,7 @@ class ActivateController extends Controller
                     // User ke active investment me package check karo
                     $hasHalfLevelPackage = InvestmentHistory::where('user_id', $user->id)
                         ->whereIn('package_id', [8, 9, 10])
-                        ->where('status', 1) // agar active investment status 1 hai
+                        ->where('status', 2) // agar active investment status 1 hai
                         ->exists();
 
                     if ($hasHalfLevelPackage) {
