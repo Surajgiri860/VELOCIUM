@@ -86,27 +86,23 @@ class ActivateController extends Controller
                 ->latest()
                 ->first();
 
-            // ✅ FIX 1: Last claim date determine karo
+            // Last claim date decide karo
             if ($lastClaim === null) {
-                // Pehli baar claim — user ki investment start date se calculate karo
-                // ya safe option: sirf 1 din ka ROI do
                 $lastClaimDate = $currentDate->copy()->subDays(1);
             } else {
-                $lastClaimDate = $lastClaim->created_at;
+                $lastClaimDate = Carbon::parse($lastClaim->created_at);
             }
 
             $hoursSinceLastClaim = $lastClaimDate->diffInHours($currentDate);
 
-            // 24 ghante pura hua ya nahi
             if ($hoursSinceLastClaim < 24) {
-                Log::info("User {$user->id} already credited today. Hours since last: {$hoursSinceLastClaim}");
+                Log::info("User {$user->id} already credited. Hours since last: {$hoursSinceLastClaim}");
                 continue;
             }
 
-            // ✅ FIX 2: Cap days — max 7 din tak hi allow karo (cron miss ho toh bhi safe)
+            // Max 7 din cap
             $daysToCredit = min(floor($hoursSinceLastClaim / 24), 7);
 
-            // ✅ FIX 3: Investments fetch karo with null-safe package check
             $user_investments = InvestmentHistory::with('package')
                 ->where('user_id', $user->id)
                 ->where('status', 2)
@@ -115,16 +111,14 @@ class ActivateController extends Controller
             $totalBalance = 0;
 
             foreach ($user_investments as $investment) {
-                // ✅ FIX 4: Package null check
                 if (!$investment->package) {
-                    Log::warning("User {$user->id}, Investment {$investment->id} has no package. Skipping.");
+                    Log::warning("User {$user->id}, Investment {$investment->id} — package missing.");
                     continue;
                 }
 
                 $daily_roi = floatval($investment->package->daily_ear_per);
                 $amount    = floatval($investment->amount);
 
-                // Investment ke active hone ke baad ka actual time calculate karo
                 $investmentStart = Carbon::parse($investment->created_at);
                 $effectiveStart  = $investmentStart->greaterThan($lastClaimDate)
                     ? $investmentStart
@@ -140,16 +134,18 @@ class ActivateController extends Controller
                 $one_day_roi   = $amount * $daily_roi / 100;
                 $totalBalance += $one_day_roi * $effectiveDays;
 
-                Log::info("User {$user->id} | Investment {$investment->id} | Days: {$effectiveDays} | ROI: {$one_day_roi} | Total so far: {$totalBalance}");
+                Log::info("User {$user->id} | Inv {$investment->id} | Days: {$effectiveDays} | ROI/day: {$one_day_roi}");
             }
 
             if ($totalBalance <= 0) {
-                Log::info("User {$user->id} — totalBalance is 0, skipping transaction.");
+                Log::info("User {$user->id} — Zero balance, skipping.");
                 continue;
             }
 
-            // ✅ FIX 5: DB Transaction — atomic operation
+            // ✅ Atomic DB transaction
             DB::transaction(function () use ($user, $totalBalance, $currentDate) {
+
+                // 1. Transaction record banao
                 TransactionHistory::create([
                     'user_id'    => $user->id,
                     'amount'     => $totalBalance,
@@ -157,20 +153,21 @@ class ActivateController extends Controller
                     'claimed_at' => $currentDate,
                 ]);
 
-                // increment() se race condition avoid hogi
-                User::where('id', $user->id)->increment('staking_balance', $totalBalance);
+                // 2. staking_balance update — increment() race condition safe hai
+                User::where('id', $user->id)
+                    ->increment('staking_balance', $totalBalance);
+
             });
 
-            Log::info("User {$user->id} credited ₹{$totalBalance} successfully.");
+            Log::info("✅ User {$user->id} — staking_balance +{$totalBalance} credited.");
 
         } catch (\Exception $e) {
-            // ✅ FIX 6: Ek user fail ho toh baaki process hote rahe
-            Log::error("ROI failed for user {$user->id}: " . $e->getMessage());
+            Log::error("❌ ROI failed for User {$user->id}: " . $e->getMessage());
             continue;
         }
     }
 
-    Log::info("claimDaily completed at {$currentDate}");
+    Log::info("claimDaily() done at {$currentDate}");
     echo "Successfully executed";
 }
 
@@ -226,18 +223,21 @@ class ActivateController extends Controller
                 // Already income mila ya nahi check
                 if (!$this->hasReceivedIncome($referrerUser->id, $user->id, $currentLevel, $today)) {
 
-                    // Income calculation
-                   $incomeAmount = ($user->total_investment * $levelStat->level_per) / 3000;
+                   
+                   // Income calculation
+                        $incomeAmount = ($user->total_investment * $levelStat->level_per) / 3000;
 
-                    // User ke active investment me package check karo
-                    $hasHalfLevelPackage = InvestmentHistory::where('user_id', $user->id)
-                        ->whereIn('package_id', [8, 9, 10])
-                        ->where('status', 2) // agar active investment status 1 hai
-                        ->exists();
+                        // Current user ka package check
+                        $hasHalfLevelPackage = InvestmentHistory::where('user_id', $user->id)
+                            ->whereIn('package_id', [8, 9, 10])
+                            ->where('status', 2)
+                            ->exists();
 
-                    if ($hasHalfLevelPackage) {
-                        $incomeAmount = $incomeAmount / 2;
-                    }
+                        if ($hasHalfLevelPackage) {
+                            $incomeAmount = $incomeAmount / 2;
+
+                            Log::info("Half level income applied for User {$user->id}");
+                        }
 
                     if ($incomeAmount > 0) {
 
